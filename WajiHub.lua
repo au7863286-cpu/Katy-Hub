@@ -99,7 +99,7 @@ end)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Parent = screenGui
-mainFrame.Size = UDim2.new(0, 250, 0, 330) -- زيادة الطول لتستوعب الأزرار الجديدة
+mainFrame.Size = UDim2.new(0, 250, 0, 330)
 mainFrame.Position = UDim2.new(0.5, -125, 0.5, -165)
 mainFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
 mainFrame.BorderSizePixel = 0
@@ -183,7 +183,7 @@ local function createSquareButton(text, bgColor, order)
 end
 
 ---------------------------------------------------------
--- إنشاء الأزرار (شاملة أزرار الألوان والـ Scripts الجديدة)
+-- إنشاء الأزرار
 ---------------------------------------------------------
 local speedBtn       = createSquareButton("Speed:\nON", Color3.fromRGB(0, 180, 130), 1)
 local lightEffBtn    = createSquareButton("Light Effect\n[OFF]", Color3.fromRGB(45, 45, 45), 2)
@@ -223,14 +223,17 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- 2. زر Light Effect (الزر الأول المدمج بنظام التشغيل والإيقاف)
+-- 2. زر Light Effect (الكود الجديد - محلي فقط)
 local script1Active = false
+local lightEffectConnections = {} -- لتخزين الـ Connections وتنظيفها
+
 lightEffBtn.Activated:Connect(function()
     script1Active = not script1Active
     if script1Active then
         lightEffBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
         lightEffBtn.Text = "Light Effect\n[ON]"
         
+        -- التدرج اللوني الفاقع
         local customGradient = ColorSequence.new({
             ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
             ColorSequenceKeypoint.new(0.20, Color3.fromRGB(255, 0, 80)),
@@ -240,53 +243,62 @@ lightEffBtn.Activated:Connect(function()
         })
 
         local function applyGradient(effect)
-            if script1Active then
-                if effect:IsA("ParticleEmitter") then
-                    effect.Color = customGradient
-                    effect.LightEmission = 1.0
-                elseif effect:IsA("Trail") then
-                    effect.Color = customGradient
-                elseif effect:IsA("Beam") then
-                    effect.Color = customGradient
-                elseif effect:IsA("Highlight") then
-                    effect.FillColor = Color3.fromRGB(255, 255, 255)
-                    effect.OutlineColor = Color3.fromRGB(200, 0, 255)
-                end
+            if effect:IsA("ParticleEmitter") then
+                effect.Color = customGradient
+                effect.LightEmission = 1.0
+            elseif effect:IsA("Trail") then
+                effect.Color = customGradient
+            elseif effect:IsA("Beam") then
+                effect.Color = customGradient
+            elseif effect:IsA("Highlight") then
+                effect.FillColor = Color3.fromRGB(255, 255, 255)
+                effect.OutlineColor = Color3.fromRGB(200, 0, 255)
             end
         end
 
-        local function monitorInstance(parent)
-            for _, descendant in ipairs(parent:GetDescendants()) do
+        local function monitorCharacter(character)
+            for _, descendant in ipairs(character:GetDescendants()) do
                 applyGradient(descendant)
             end
-            parent.DescendantAdded:Connect(function(descendant)
+            local conn = character.DescendantAdded:Connect(function(descendant)
                 applyGradient(descendant)
             end)
+            table.insert(lightEffectConnections, conn)
         end
 
-        monitorInstance(workspace)
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p.Character then
-                monitorInstance(p.Character)
-            end
-            p.CharacterAdded:Connect(function(char)
-                monitorInstance(char)
-            end)
+        if player.Character then
+            monitorCharacter(player.Character)
         end
+
+        local charConn = player.CharacterAdded:Connect(function(character)
+            monitorCharacter(character)
+        end)
+        table.insert(lightEffectConnections, charConn)
+        
     else
         lightEffBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
         lightEffBtn.Text = "Light Effect\n[OFF]"
+        
+        -- تنظيف جميع الاتصالات
+        for _, conn in ipairs(lightEffectConnections) do
+            conn:Disconnect()
+        end
+        lightEffectConnections = {}
     end
 end)
 
--- 3. زر All Players Colors (الزر الثاني المدمج بنظام التشغيل والإيقاف)
+-- 3. زر All Players Colors (الكود الجديد - محلي فقط + بدون تجميد)
 local script2Active = false
+local colorCycleConnections = {}
+local activeEffects = {}
+
 allColBtn.Activated:Connect(function()
     script2Active = not script2Active
     if script2Active then
         allColBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
         allColBtn.Text = "All Players\nColors [ON]"
         
+        -- قائمة الألوان الثمانية
         local colors = {
             Color3.fromRGB(125, 249, 255),
             Color3.fromRGB(0, 128, 255),
@@ -304,73 +316,93 @@ allColBtn.Activated:Connect(function()
             NumberSequenceKeypoint.new(1.0, 1.0)
         })
 
-        local function applyEffect(effect)
-            if script2Active then
-                if effect:IsA("ParticleEmitter") or effect:IsA("Trail") or effect:IsA("Beam") then
-                    effect.Transparency = fadeTransparency
-                    effect.LightEmission = 0.85
-                elseif effect:IsA("Highlight") then
-                    effect.FillColor = Color3.fromRGB(255, 255, 255)
-                    effect.OutlineColor = colors[1]
+        local function addEffect(effect)
+            if effect:IsA("ParticleEmitter") or effect:IsA("Trail") or effect:IsA("Beam") then
+                table.insert(activeEffects, effect)
+                effect.Transparency = fadeTransparency
+                effect.LightEmission = 0.85
+                effect.Color = ColorSequence.new(colors[1])
+            elseif effect:IsA("Highlight") then
+                table.insert(activeEffects, effect)
+                effect.FillColor = Color3.fromRGB(255, 255, 255)
+                effect.OutlineColor = colors[1]
+            end
+        end
+
+        local function removeEffect(effect)
+            for i, ef in ipairs(activeEffects) do
+                if ef == effect then
+                    table.remove(activeEffects, i)
+                    break
                 end
             end
         end
 
-        local function monitorInstance2(parent)
-            pcall(function()
-                for _, descendant in ipairs(parent:GetDescendants()) do
-                    applyEffect(descendant)
-                end
-                parent.DescendantAdded:Connect(function(descendant)
-                    applyEffect(descendant)
-                end)
-            end)
-        end
-
-        monitorInstance2(workspace)
-        for _, p in ipairs(Players:GetPlayers()) do
-            if p.Character then
-                monitorInstance2(p.Character)
+        local function monitorCharacter(character)
+            for _, descendant in ipairs(character:GetDescendants()) do
+                addEffect(descendant)
             end
-            p.CharacterAdded:Connect(function(char)
-                monitorInstance2(char)
+            local conn1 = character.DescendantAdded:Connect(function(descendant)
+                addEffect(descendant)
             end)
+            local conn2 = character.DescendantRemoving:Connect(function(descendant)
+                removeEffect(descendant)
+            end)
+            table.insert(colorCycleConnections, conn1)
+            table.insert(colorCycleConnections, conn2)
         end
 
-        task.spawn(function()
-            local currentIndex = 1
-            while script2Active do
-                task.wait(0.4)
+        if player.Character then
+            monitorCharacter(player.Character)
+        end
+
+        local charConn = player.CharacterAdded:Connect(function(character)
+            activeEffects = {}
+            monitorCharacter(character)
+        end)
+        table.insert(colorCycleConnections, charConn)
+
+        -- نظام تغيير الألوان باستخدام Heartbeat (بدون تجميد)
+        local currentIndex = 1
+        local timer = 0
+        local switchInterval = 0.4
+
+        local heartbeatConn = RunService.Heartbeat:Connect(function(deltaTime)
+            if not script2Active then return end
+            timer = timer + deltaTime
+            
+            if timer >= switchInterval then
+                timer = 0
                 currentIndex = (currentIndex % #colors) + 1
                 local nextColor = colors[currentIndex]
                 
-                pcall(function()
-                    if not script2Active then return end
-                    for _, descendant in ipairs(workspace:GetDescendants()) do
-                        if descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("Beam") then
-                            descendant.Color = ColorSequence.new(nextColor)
-                        elseif descendant:IsA("Highlight") then
-                            descendant.OutlineColor = nextColor
-                        end
-                    end
-                    
-                    for _, p in ipairs(Players:GetPlayers()) do
-                        if p.Character then
-                            for _, descendant in ipairs(p.Character:GetDescendants()) do
-                                if descendant:IsA("ParticleEmitter") or descendant:IsA("Trail") or descendant:IsA("Beam") then
-                                    descendant.Color = ColorSequence.new(nextColor)
-                                elseif descendant:IsA("Highlight") then
-                                    descendant.OutlineColor = nextColor
-                                end
+                for _, effect in ipairs(activeEffects) do
+                    pcall(function()
+                        if effect and effect.Parent then
+                            if effect:IsA("ParticleEmitter") or effect:IsA("Trail") or effect:IsA("Beam") then
+                                effect.Color = ColorSequence.new(nextColor)
+                            elseif effect:IsA("Highlight") then
+                                effect.OutlineColor = nextColor
                             end
+                        else
+                            removeEffect(effect)
                         end
-                    end
-                end)
+                    end)
+                end
             end
         end)
+        table.insert(colorCycleConnections, heartbeatConn)
+        
     else
         allColBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
         allColBtn.Text = "All Players\nColors [OFF]"
+        
+        -- تنظيف جميع الاتصالات
+        for _, conn in ipairs(colorCycleConnections) do
+            conn:Disconnect()
+        end
+        colorCycleConnections = {}
+        activeEffects = {}
     end
 end)
 
@@ -416,7 +448,7 @@ end)
 
 -- أزرار الإغلاق والفتح وإلغاء التجميد
 closeBtn.Activated:Connect(function()
-    freezeCharacter(false) -- فك تجميد الحركة عند الإغلاق
+    freezeCharacter(false)
     mainFrame.Visible = false
     noteLabel.Visible = false
     openBtn.Visible = true
@@ -428,5 +460,4 @@ openBtn.Activated:Connect(function()
     openBtn.Visible = false
 end)
 
-print("Waji Hub Fully Loaded Successfully with TSB Color Effects!")
-
+print("Waji Hub Fully Loaded Successfully with Optimized TSB Color Effects!")
