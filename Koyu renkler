@@ -1,0 +1,137 @@
+-- [[ TSB Color Cycling & Smooth Fade Script (Local Only + Optimized) ]]
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local localPlayer = Players.LocalPlayer
+
+if not localPlayer then
+    warn("⚠️ لا يوجد لاعب محلي!")
+    return
+end
+
+-- قائمة الألوان السبعة الجديدة
+local colors = {
+    Color3.fromRGB(125, 249, 255),  -- 🌊 سماوي جليدي
+    Color3.fromRGB(0, 128, 255),    -- ⚡ أزرق كهربائي
+    Color3.fromRGB(0, 255, 0),      -- 🟢 أخضر نقي
+    Color3.fromRGB(255, 255, 0),    -- 🟡 أصفر نقي
+    Color3.fromRGB(255, 95, 31),    -- 🟠 برتقالي ناري
+    Color3.fromRGB(255, 0, 0),      -- 🔴 أحمر نقي
+    Color3.fromRGB(255, 105, 180)   -- 🌸 زهري فاتح نقي
+}
+
+-- شفافية تتلاشى تدريجياً
+local fadeTransparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0.0, 0.0),
+    NumberSequenceKeypoint.new(0.5, 0.3),
+    NumberSequenceKeypoint.new(1.0, 1.0)
+})
+
+-- جدول لتخزين المؤثرات التي سيتم تحديث ألوانها
+local activeEffects = {}
+
+-- دالة إضافة مؤثر إلى قائمة التحديث (مع التأكد من عدم تكراره)
+local function addEffect(effect)
+    if not effect then return end
+    
+    -- التأكد من أن المؤثر غير موجود مسبقاً في الجدول لمنع التكرار
+    if table.find(activeEffects, effect) then
+        return
+    end
+    
+    if effect:IsA("ParticleEmitter") or effect:IsA("Trail") or effect:IsA("Beam") then
+        table.insert(activeEffects, effect)
+        effect.Transparency = fadeTransparency
+        effect.LightEmission = 0.85
+        effect.Color = ColorSequence.new(colors[1]) -- تعيين اللون الأولي
+    elseif effect:IsA("Highlight") then
+        table.insert(activeEffects, effect)
+        effect.FillColor = Color3.fromRGB(255, 255, 255)
+        effect.OutlineColor = colors[1]
+    end
+end
+
+-- دالة إزالة مؤثر من القائمة (لتنظيف الذاكرة)
+local function removeEffect(effect)
+    for i, ef in ipairs(activeEffects) do
+        if ef == effect then
+            table.remove(activeEffects, i)
+            break
+        end
+    end
+end
+
+-- مراقبة إضافة المؤثرات للشخصية
+local function monitorCharacter(character)
+    -- إضافة المؤثرات الموجودة حالياً
+    for _, descendant in ipairs(character:GetDescendants()) do
+        addEffect(descendant)
+    end
+    
+    -- مراقبة المؤثرات الجديدة
+    character.DescendantAdded:Connect(function(descendant)
+        addEffect(descendant)
+    end)
+    
+    -- مراقبة إزالة المؤثرات
+    character.DescendantRemoving:Connect(function(descendant)
+        removeEffect(descendant)
+    end)
+end
+
+-- تحميل الشخصية الحالية إذا كانت موجودة
+if localPlayer.Character then
+    monitorCharacter(localPlayer.Character)
+end
+
+-- مراقبة إعادة ظهور الشخصية
+localPlayer.CharacterAdded:Connect(function(character)
+    -- تنظيف القائمة القديمة
+    table.clear(activeEffects)
+    monitorCharacter(character)
+end)
+
+-- نظام تغيير الألوان تدريجياً باستخدام RunService
+local currentIndex = 1
+local timer = 0
+local switchInterval = 0.4 -- تغيير اللون كل 0.4 ثانية
+
+RunService.Heartbeat:Connect(function(deltaTime)
+    timer = timer + deltaTime
+    
+    if timer >= switchInterval then
+        timer = 0
+        currentIndex = (currentIndex % #colors) + 1
+        local nextColor = colors[currentIndex]
+        
+        -- جدول مؤقت لتخزين العناصر التي يجب إزالتها (لتجنب التعديل أثناء الدوران)
+        local toRemove = {}
+        
+        -- تحديث المؤثرات المخزنة
+        for _, effect in ipairs(activeEffects) do
+            local success, err = pcall(function()
+                if effect and effect.Parent then
+                    if effect:IsA("ParticleEmitter") or effect:IsA("Trail") or effect:IsA("Beam") then
+                        effect.Color = ColorSequence.new(nextColor)
+                    elseif effect:IsA("Highlight") then
+                        effect.OutlineColor = nextColor
+                    end
+                else
+                    table.insert(toRemove, effect)
+                end
+            end)
+            
+            if not success then
+                table.insert(toRemove, effect)
+            end
+        end
+        
+        -- إزالة العناصر التالفة دفعة واحدة بعد الانتهاء من حلقة الدوران
+        for _, effect in ipairs(toRemove) do
+            removeEffect(effect)
+        end
+    end
+end)
+
+print("✨ تم تفعيل سكريبت تبديل الألوان بـ 7 ألوان (محلي + محسّن وآمن) بنجاح!")
+
