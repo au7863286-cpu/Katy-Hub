@@ -42,8 +42,8 @@ screenGui.Parent = playerGui
 local noteLabel = Instance.new("TextLabel")
 noteLabel.Name = "NoteLabel"
 noteLabel.Parent = screenGui
-noteLabel.Size = UDim2.new(0, 260, 0, 25)
-noteLabel.Position = UDim2.new(0.5, -130, 0.35, -165)
+noteLabel.Size = UDim2.new(0, 320, 0, 25)
+noteLabel.Position = UDim2.new(0.5, -160, 0.35, -135)
 noteLabel.BackgroundTransparency = 1
 noteLabel.Text = "Enable the first button with the second and it will give a cool shape"
 noteLabel.TextColor3 = Color3.fromRGB(255, 230, 0)
@@ -95,12 +95,12 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- النافذة الرئيسية
+-- النافذة الرئيسية (عريضة وأفقية)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Parent = screenGui
-mainFrame.Size = UDim2.new(0, 250, 0, 330)
-mainFrame.Position = UDim2.new(0.5, -125, 0.5, -165)
+mainFrame.Size = UDim2.new(0, 440, 0, 260)
+mainFrame.Position = UDim2.new(0.5, -220, 0.5, -130)
 mainFrame.BackgroundColor3 = Color3.fromRGB(22, 22, 22)
 mainFrame.BorderSizePixel = 0
 mainFrame.ZIndex = 1
@@ -157,19 +157,86 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- حاوية الأزرار المربعة
-local gridContainer = Instance.new("Frame", mainFrame)
-gridContainer.Size = UDim2.new(1, -20, 1, -50)
-gridContainer.Position = UDim2.new(0, 10, 0, 42)
-gridContainer.BackgroundTransparency = 1
+-- شريط الأقسام (Tabs Bar) العلوي داخل النافذة
+local tabsBar = Instance.new("Frame", mainFrame)
+tabsBar.Size = UDim2.new(1, -20, 0, 30)
+tabsBar.Position = UDim2.new(0, 10, 0, 40)
+tabsBar.BackgroundTransparency = 1
 
-local gridLayout = Instance.new("UIGridLayout", gridContainer)
-gridLayout.CellSize = UDim2.new(0, 70, 0, 50)
-gridLayout.CellPadding = UDim2.new(0, 8, 0, 8)
-gridLayout.SortOrder = Enum.SortOrder.LayoutOrder
+local tabsLayout = Instance.new("UIListLayout", tabsBar)
+tabsLayout.FillDirection = Enum.FillDirection.Horizontal
+tabsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+tabsLayout.Padding = UDim.new(0, 6)
 
-local function createSquareButton(text, bgColor, order)
-    local btn = Instance.new("TextButton", gridContainer)
+-- حاوية محتوى الأقسام
+local contentContainer = Instance.new("Frame", mainFrame)
+contentContainer.Size = UDim2.new(1, -20, 1, -85)
+contentContainer.Position = UDim2.new(0, 10, 0, 75)
+contentContainer.BackgroundTransparency = 1
+
+-- إنشاء الأقسام
+local function createTabContent()
+    local page = Instance.new("ScrollingFrame", contentContainer)
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.Visible = false
+    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.ScrollBarThickness = 3
+    
+    local grid = Instance.new("UIGridLayout", page)
+    grid.CellSize = UDim2.new(0, 95, 0, 45)
+    grid.CellPadding = UDim2.new(0, 8, 0, 8)
+    grid.SortOrder = Enum.SortOrder.LayoutOrder
+    return page
+end
+
+local tabMain = createTabContent()
+local tabVisuals = createTabContent()
+local tabCombat = createTabContent()
+local tabScripts = createTabContent()
+
+tabMain.Visible = true -- القسم الافتراضي
+
+local function createTabButton(name, targetPage, order)
+    local btn = Instance.new("TextButton", tabsBar)
+    btn.Size = UDim2.new(0, 95, 1, 0)
+    btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 11
+    btn.LayoutOrder = order
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    
+    btn.Activated:Connect(function()
+        tabMain.Visible = false
+        tabVisuals.Visible = false
+        tabCombat.Visible = false
+        tabScripts.Visible = false
+        
+        for _, child in ipairs(tabsBar:GetChildren()) do
+            if child:IsA("TextButton") then
+                child.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+                child.TextColor3 = Color3.fromRGB(200, 200, 200)
+            end
+        end
+        
+        targetPage.Visible = true
+        btn.BackgroundColor3 = Color3.fromRGB(0, 180, 130)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    end)
+    return btn
+end
+
+local btnMainTab = createTabButton("Main", tabMain, 1)
+btnMainTab.BackgroundColor3 = Color3.fromRGB(0, 180, 130)
+btnMainTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+createTabButton("Visuals", tabVisuals, 2)
+createTabButton("Combat", tabCombat, 3)
+createTabButton("Scripts", tabScripts, 4)
+
+local function createSquareButton(parent, text, bgColor, order)
+    local btn = Instance.new("TextButton", parent)
     btn.BackgroundColor3 = bgColor or Color3.fromRGB(40, 40, 40)
     btn.Text = text
     btn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -183,19 +250,23 @@ local function createSquareButton(text, bgColor, order)
 end
 
 ---------------------------------------------------------
--- إنشاء الأزرار
+-- توزيع الأزرار داخل الأقسام
 ---------------------------------------------------------
-local speedBtn       = createSquareButton("Speed:\nON", Color3.fromRGB(0, 180, 130), 1)
-local lightEffBtn    = createSquareButton("Light Effect\n[OFF]", Color3.fromRGB(45, 45, 45), 2)
-local allColBtn      = createSquareButton("All Players\nColors [OFF]", Color3.fromRGB(45, 45, 45), 3)
-local aimbot1Btn     = createSquareButton("Aimbot", Color3.fromRGB(45, 45, 45), 4)
-local aimbot2Btn     = createSquareButton("Best\naimbot", Color3.fromRGB(45, 45, 45), 5)
-local shadersBtn     = createSquareButton("Best\nShaders", Color3.fromRGB(45, 45, 45), 6)
-local reducingLagBtn = createSquareButton("Reducing\nlag", Color3.fromRGB(45, 45, 45), 7)
-local deleteLagBtn   = createSquareButton("Delete\nthe lag", Color3.fromRGB(45, 45, 45), 8)
-local script1Btn     = createSquareButton("Utility\nScript", Color3.fromRGB(45, 45, 45), 9)
-local script2Btn     = createSquareButton("Feature\nScript", Color3.fromRGB(45, 45, 45), 10)
-local killBtn        = createSquareButton("Reset\nHP", Color3.fromRGB(220, 40, 40), 11)
+local speedBtn       = createSquareButton(tabMain, "Speed:\nON", Color3.fromRGB(0, 180, 130), 1)
+local reducingLagBtn = createSquareButton(tabMain, "Reducing\nlag", Color3.fromRGB(45, 45, 45), 2)
+local deleteLagBtn   = createSquareButton(tabMain, "Delete\nthe lag", Color3.fromRGB(45, 45, 45), 3)
+local killBtn        = createSquareButton(tabMain, "Reset\nHP", Color3.fromRGB(220, 40, 40), 4)
+
+local lightEffBtn    = createSquareButton(tabVisuals, "Light Effect\n[OFF]", Color3.fromRGB(45, 45, 45), 1)
+local allColBtn      = createSquareButton(tabVisuals, "All Players\nColors [OFF]", Color3.fromRGB(45, 45, 45), 2)
+local shadersBtn     = createSquareButton(tabVisuals, "Best\nShaders", Color3.fromRGB(45, 45, 45), 3)
+
+local aimbot1Btn     = createSquareButton(tabCombat, "Aimbot", Color3.fromRGB(45, 45, 45), 1)
+local aimbot2Btn     = createSquareButton(tabCombat, "Best\naimbot", Color3.fromRGB(45, 45, 45), 2)
+
+local sideDashBtn    = createSquareButton(tabScripts, "Side Dash", Color3.fromRGB(45, 45, 45), 1)
+local disciplineBtn  = createSquareButton(tabScripts, "Discipline", Color3.fromRGB(45, 45, 45), 2)
+local script2Btn     = createSquareButton(tabScripts, "Feature\nScript", Color3.fromRGB(45, 45, 45), 3)
 
 ---------------------------------------------------------
 -- برمجة الأزرار
@@ -223,9 +294,9 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- 2. زر Light Effect (الكود الجديد - محلي فقط)
+-- 2. زر Light Effect
 local script1Active = false
-local lightEffectConnections = {} -- لتخزين الـ Connections وتنظيفها
+local lightEffectConnections = {}
 
 lightEffBtn.Activated:Connect(function()
     script1Active = not script1Active
@@ -233,7 +304,6 @@ lightEffBtn.Activated:Connect(function()
         lightEffBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
         lightEffBtn.Text = "Light Effect\n[ON]"
         
-        -- التدرج اللوني الفاقع
         local customGradient = ColorSequence.new({
             ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
             ColorSequenceKeypoint.new(0.20, Color3.fromRGB(255, 0, 80)),
@@ -279,7 +349,6 @@ lightEffBtn.Activated:Connect(function()
         lightEffBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
         lightEffBtn.Text = "Light Effect\n[OFF]"
         
-        -- تنظيف جميع الاتصالات
         for _, conn in ipairs(lightEffectConnections) do
             conn:Disconnect()
         end
@@ -287,7 +356,7 @@ lightEffBtn.Activated:Connect(function()
     end
 end)
 
--- 3. زر All Players Colors (الكود الجديد - محلي فقط + بدون تجميد)
+-- 3. زر All Players Colors
 local script2Active = false
 local colorCycleConnections = {}
 local activeEffects = {}
@@ -298,7 +367,6 @@ allColBtn.Activated:Connect(function()
         allColBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
         allColBtn.Text = "All Players\nColors [ON]"
         
-        -- قائمة الألوان الثمانية
         local colors = {
             Color3.fromRGB(125, 249, 255),
             Color3.fromRGB(0, 128, 255),
@@ -362,7 +430,6 @@ allColBtn.Activated:Connect(function()
         end)
         table.insert(colorCycleConnections, charConn)
 
-        -- نظام تغيير الألوان باستخدام Heartbeat (بدون تجميد)
         local currentIndex = 1
         local timer = 0
         local switchInterval = 0.4
@@ -397,7 +464,6 @@ allColBtn.Activated:Connect(function()
         allColBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
         allColBtn.Text = "All Players\nColors [OFF]"
         
-        -- تنظيف جميع الاتصالات
         for _, conn in ipairs(colorCycleConnections) do
             conn:Disconnect()
         end
@@ -406,7 +472,15 @@ allColBtn.Activated:Connect(function()
     end
 end)
 
--- أزرار الهكر المتبقية
+-- تشغيل السكريبتات الجديدة
+sideDashBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/54d6b993fe3a4c1f5c3e375eba35e5ec.lua"))() end)
+end)
+
+disciplineBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet("https://pastefy.app/wa3v2Vgm/raw"))("Spider Script") end)
+end)
+
 aimbot1Btn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://pastebin.com/raw/E7HYaqgD", true))() end)
 end)
@@ -430,10 +504,6 @@ end)
 
 deleteLagBtn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/marianscriptKing/SUPER-MAX.lau/main/SUPER%20MAX%20PERFORMANCE"))() end)
-end)
-
-script1Btn.Activated:Connect(function()
-    pcall(function() loadstring(game:HttpGet("https://api.getpolsec.com/scripts/hosted/23bcf4264b586dc93b16a9b054eddae259938b7421ac5096353079b2e9d74e24.lua"))() end)
 end)
 
 script2Btn.Activated:Connect(function()
@@ -460,4 +530,5 @@ openBtn.Activated:Connect(function()
     openBtn.Visible = false
 end)
 
-print("Waji Hub Fully Loaded Successfully with Optimized TSB Color Effects!")
+print("Waji Hub Fully Loaded Successfully with Horizontal Layout & Tabs!")
+
