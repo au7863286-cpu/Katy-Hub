@@ -193,7 +193,7 @@ end
 local tabMain = createTabContent()
 local tabVisuals = createTabContent()
 local tabCombat = createTabContent()
-local tabScripts = createTabContent()
+local tabExtra = createTabContent() -- تم تغيير اسم القسم من Scripts إلى Extra
 
 tabMain.Visible = true -- القسم الافتراضي
 
@@ -212,7 +212,7 @@ local function createTabButton(name, targetPage, order)
         tabMain.Visible = false
         tabVisuals.Visible = false
         tabCombat.Visible = false
-        tabScripts.Visible = false
+        tabExtra.Visible = false
         
         for _, child in ipairs(tabsBar:GetChildren()) do
             if child:IsA("TextButton") then
@@ -233,7 +233,7 @@ btnMainTab.BackgroundColor3 = Color3.fromRGB(0, 180, 130)
 btnMainTab.TextColor3 = Color3.fromRGB(255, 255, 255)
 createTabButton("Visuals", tabVisuals, 2)
 createTabButton("Combat", tabCombat, 3)
-createTabButton("Scripts", tabScripts, 4)
+createTabButton("Extra", tabExtra, 4) -- اسم القسم الجديد
 
 local function createSquareButton(parent, text, bgColor, order)
     local btn = Instance.new("TextButton", parent)
@@ -263,10 +263,12 @@ local shadersBtn     = createSquareButton(tabVisuals, "Best\nShaders", Color3.fr
 
 local aimbot1Btn     = createSquareButton(tabCombat, "Aimbot", Color3.fromRGB(45, 45, 45), 1)
 local aimbot2Btn     = createSquareButton(tabCombat, "Best\naimbot", Color3.fromRGB(45, 45, 45), 2)
+local loopDashBtn    = createSquareButton(tabCombat, "Loop Dash", Color3.fromRGB(45, 45, 45), 3) -- الزر الجديد في Combat
 
-local sideDashBtn    = createSquareButton(tabScripts, "Side Dash", Color3.fromRGB(45, 45, 45), 1)
-local disciplineBtn  = createSquareButton(tabScripts, "Discipline", Color3.fromRGB(45, 45, 45), 2)
-local script2Btn     = createSquareButton(tabScripts, "Feature\nScript", Color3.fromRGB(45, 45, 45), 3)
+local sideDashBtn    = createSquareButton(tabExtra, "Side Dash", Color3.fromRGB(45, 45, 45), 1)
+local disciplineBtn  = createSquareButton(tabExtra, "Discipline", Color3.fromRGB(45, 45, 45), 2)
+local emotesBtn      = createSquareButton(tabExtra, "Emotes", Color3.fromRGB(45, 45, 45), 3) -- زر التعبيرات الجديد
+local script2Btn     = createSquareButton(tabExtra, "Feature\nScript", Color3.fromRGB(45, 45, 45), 4)
 
 ---------------------------------------------------------
 -- برمجة الأزرار
@@ -294,7 +296,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- 2. زر Light Effect
+-- 2. زر Light Effect (مع 4 ألوان جديدة مضافة)
 local script1Active = false
 local lightEffectConnections = {}
 
@@ -304,12 +306,17 @@ lightEffBtn.Activated:Connect(function()
         lightEffBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
         lightEffBtn.Text = "Light Effect\n[ON]"
         
+        -- تدرج لوني مطور يشمل الألوان القديمة + 4 ألوان جديدة (Cyan, Deep Orange, Lime, Hot Magenta)
         local customGradient = ColorSequence.new({
             ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-            ColorSequenceKeypoint.new(0.20, Color3.fromRGB(255, 0, 80)),
-            ColorSequenceKeypoint.new(0.40, Color3.fromRGB(255, 230, 0)),
-            ColorSequenceKeypoint.new(0.65, Color3.fromRGB(200, 0, 255)),
-            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(0, 255, 60))
+            ColorSequenceKeypoint.new(0.12, Color3.fromRGB(255, 0, 80)),
+            ColorSequenceKeypoint.new(0.25, Color3.fromRGB(0, 243, 255)), -- لون جديد 1
+            ColorSequenceKeypoint.new(0.38, Color3.fromRGB(255, 230, 0)),
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255, 110, 0)),  -- لون جديد 2
+            ColorSequenceKeypoint.new(0.62, Color3.fromRGB(200, 0, 255)),
+            ColorSequenceKeypoint.new(0.75, Color3.fromRGB(0, 255, 120)), -- لون جديد 3
+            ColorSequenceKeypoint.new(0.88, Color3.fromRGB(0, 255, 60)),
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 170))  -- لون جديد 4
         })
 
         local function applyGradient(effect)
@@ -356,7 +363,7 @@ lightEffBtn.Activated:Connect(function()
     end
 end)
 
--- 3. زر All Players Colors
+-- 3. زر All Players Colors (مع 4 ألوان جديدة مضافة للقائمة)
 local script2Active = false
 local colorCycleConnections = {}
 local activeEffects = {}
@@ -367,6 +374,7 @@ allColBtn.Activated:Connect(function()
         allColBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
         allColBtn.Text = "All Players\nColors [ON]"
         
+        -- تم دمج 4 ألوان إضافية جديدة (إجمالي 12 لوناً)
         local colors = {
             Color3.fromRGB(125, 249, 255),
             Color3.fromRGB(0, 128, 255),
@@ -375,7 +383,11 @@ allColBtn.Activated:Connect(function()
             Color3.fromRGB(255, 95, 31),
             Color3.fromRGB(255, 0, 0),
             Color3.fromRGB(255, 105, 180),
-            Color3.fromRGB(255, 16, 240)
+            Color3.fromRGB(255, 16, 240),
+            Color3.fromRGB(0, 255, 255), -- لون جديد 1 (Cyan)
+            Color3.fromRGB(255, 140, 0),  -- لون جديد 2 (Dark Orange)
+            Color3.fromRGB(127, 255, 0),  -- لون جديد 3 (Chartreuse)
+            Color3.fromRGB(255, 20, 147)  -- لون جديد 4 (Deep Pink)
         }
 
         local fadeTransparency = NumberSequence.new({
@@ -472,13 +484,21 @@ allColBtn.Activated:Connect(function()
     end
 end)
 
--- تشغيل السكريبتات الجديدة
+-- تشغيل السكريبتات
 sideDashBtn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/54d6b993fe3a4c1f5c3e375eba35e5ec.lua"))() end)
 end)
 
 disciplineBtn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://pastefy.app/wa3v2Vgm/raw"))("Spider Script") end)
+end)
+
+loopDashBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/longv7217-commits/rayfield/refs/heads/main/Loopdash%20v2"))() end)
+end)
+
+emotesBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Cyborg883/EmoteGui/refs/heads/main/Protected_4900496055951847.lua"))() end)
 end)
 
 aimbot1Btn.Activated:Connect(function()
@@ -530,5 +550,4 @@ openBtn.Activated:Connect(function()
     openBtn.Visible = false
 end)
 
-print("Waji Hub Fully Loaded Successfully with Horizontal Layout & Tabs!")
-
+print("Waji Hub Fully Loaded Successfully with New Scripts, Custom Emotes, and Extra Colors!")
