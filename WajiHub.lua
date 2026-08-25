@@ -2,6 +2,8 @@
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
+local HttpService = game:GetService("HttpService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -10,6 +12,55 @@ local playerGui = player:WaitForChild("PlayerGui")
 if playerGui:FindFirstChild("WajiHubGui") then
     playerGui.WajiHubGui:Destroy()
 end
+if playerGui:FindFirstChild("WajiWelcomeGui") then
+    playerGui.WajiWelcomeGui:Destroy()
+end
+
+-- نافذة الترحيب عند تشغيل السكريبت لأول مرة
+local welcomeGui = Instance.new("ScreenGui")
+welcomeGui.Name = "WajiWelcomeGui"
+welcomeGui.ResetOnSpawn = false
+welcomeGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+welcomeGui.Parent = playerGui
+
+local welcomeFrame = Instance.new("Frame", welcomeGui)
+welcomeFrame.Size = UDim2.new(0, 340, 0, 190)
+welcomeFrame.Position = UDim2.new(0.5, -170, 0.5, -95)
+welcomeFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+welcomeFrame.BorderSizePixel = 0
+welcomeFrame.ZIndex = 20
+Instance.new("UICorner", welcomeFrame).CornerRadius = UDim.new(0, 12)
+
+local welcomeTitle = Instance.new("TextLabel", welcomeFrame)
+welcomeTitle.Size = UDim2.new(1, 0, 0, 35)
+welcomeTitle.BackgroundTransparency = 1
+welcomeTitle.Text = "Waji Hub - Notice"
+welcomeTitle.TextColor3 = Color3.fromRGB(0, 180, 130)
+welcomeTitle.Font = Enum.Font.GothamBold
+welcomeTitle.TextSize = 15
+welcomeTitle.ZIndex = 21
+
+local welcomeText = Instance.new("TextLabel", welcomeFrame)
+welcomeText.Size = UDim2.new(1, -30, 0, 100)
+welcomeText.Position = UDim2.new(0, 15, 0, 35)
+welcomeText.BackgroundTransparency = 1
+welcomeText.Text = "Do not abandon this script, as it ensures continuous updates. If you encounter any problem, you can head to the Settings. Thank you very much for using the script!"
+welcomeText.TextColor3 = Color3.fromRGB(220, 220, 220)
+welcomeText.Font = Enum.Font.Gotham
+welcomeText.TextSize = 12
+welcomeText.TextWrapped = true
+welcomeText.ZIndex = 21
+
+local welcomeBtn = Instance.new("TextButton", welcomeFrame)
+welcomeBtn.Size = UDim2.new(0, 120, 0, 30)
+welcomeBtn.Position = UDim2.new(0.5, -60, 1, -40)
+welcomeBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 130)
+welcomeBtn.Text = "Got it"
+welcomeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+welcomeBtn.Font = Enum.Font.GothamBold
+welcomeBtn.TextSize = 13
+welcomeBtn.ZIndex = 21
+Instance.new("UICorner", welcomeBtn).CornerRadius = UDim.new(0, 6)
 
 -- منع الشخصية من الحركة نهائياً عند التشغيل لأول مرة
 local function freezeCharacter(enable)
@@ -30,6 +81,10 @@ local function freezeCharacter(enable)
     end
 end
 freezeCharacter(true)
+
+welcomeBtn.Activated:Connect(function()
+    welcomeGui:Destroy()
+end)
 
 -- إنشاء الشاشة الرئيسية
 local screenGui = Instance.new("ScreenGui")
@@ -166,7 +221,7 @@ tabsBar.BackgroundTransparency = 1
 local tabsLayout = Instance.new("UIListLayout", tabsBar)
 tabsLayout.FillDirection = Enum.FillDirection.Horizontal
 tabsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-tabsLayout.Padding = UDim.new(0, 6)
+tabsLayout.Padding = UDim.new(0, 4)
 
 -- حاوية محتوى الأقسام
 local contentContainer = Instance.new("Frame", mainFrame)
@@ -193,18 +248,19 @@ end
 local tabMain = createTabContent()
 local tabVisuals = createTabContent()
 local tabCombat = createTabContent()
-local tabExtra = createTabContent() -- تم تغيير اسم القسم من Scripts إلى Extra
+local tabExtra = createTabContent()
+local tabSettings = createTabContent() -- قسم الاعدادات الجديد
 
 tabMain.Visible = true -- القسم الافتراضي
 
 local function createTabButton(name, targetPage, order)
     local btn = Instance.new("TextButton", tabsBar)
-    btn.Size = UDim2.new(0, 95, 1, 0)
+    btn.Size = UDim2.new(0, 80, 1, 0)
     btn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     btn.Text = name
     btn.TextColor3 = Color3.fromRGB(200, 200, 200)
     btn.Font = Enum.Font.GothamBold
-    btn.TextSize = 11
+    btn.TextSize = 10
     btn.LayoutOrder = order
     Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     
@@ -213,6 +269,7 @@ local function createTabButton(name, targetPage, order)
         tabVisuals.Visible = false
         tabCombat.Visible = false
         tabExtra.Visible = false
+        tabSettings.Visible = false
         
         for _, child in ipairs(tabsBar:GetChildren()) do
             if child:IsA("TextButton") then
@@ -233,7 +290,8 @@ btnMainTab.BackgroundColor3 = Color3.fromRGB(0, 180, 130)
 btnMainTab.TextColor3 = Color3.fromRGB(255, 255, 255)
 createTabButton("Visuals", tabVisuals, 2)
 createTabButton("Combat", tabCombat, 3)
-createTabButton("Extra", tabExtra, 4) -- اسم القسم الجديد
+createTabButton("Extra", tabExtra, 4)
+createTabButton("Settings", tabSettings, 5)
 
 local function createSquareButton(parent, text, bgColor, order)
     local btn = Instance.new("TextButton", parent)
@@ -263,12 +321,123 @@ local shadersBtn     = createSquareButton(tabVisuals, "Best\nShaders", Color3.fr
 
 local aimbot1Btn     = createSquareButton(tabCombat, "Aimbot", Color3.fromRGB(45, 45, 45), 1)
 local aimbot2Btn     = createSquareButton(tabCombat, "Best\naimbot", Color3.fromRGB(45, 45, 45), 2)
-local loopDashBtn    = createSquareButton(tabCombat, "Loop Dash", Color3.fromRGB(45, 45, 45), 3) -- الزر الجديد في Combat
+local silentAimBtn   = createSquareButton(tabCombat, "Aimbot &\nSilent Aim", Color3.fromRGB(45, 45, 45), 3)
+local loopDashBtn    = createSquareButton(tabCombat, "Loop Dash", Color3.fromRGB(45, 45, 45), 4)
 
 local sideDashBtn    = createSquareButton(tabExtra, "Side Dash", Color3.fromRGB(45, 45, 45), 1)
-local disciplineBtn  = createSquareButton(tabExtra, "Discipline", Color3.fromRGB(45, 45, 45), 2)
-local emotesBtn      = createSquareButton(tabExtra, "Emotes", Color3.fromRGB(45, 45, 45), 3) -- زر التعبيرات الجديد
-local script2Btn     = createSquareButton(tabExtra, "Feature\nScript", Color3.fromRGB(45, 45, 45), 4)
+local emotesBtn      = createSquareButton(tabExtra, "Emotes", Color3.fromRGB(45, 45, 45), 2)
+local script2Btn     = createSquareButton(tabExtra, "Feature\nScript", Color3.fromRGB(45, 45, 45), 3)
+
+-- تصميم قسم الاعدادات (Report Problem + صندوق المشكلة + زر الإرسال التلقائي لجوجل فورم + إشعارات تيك توك ويوتيوب بجانب وجي)
+local reportTitle = Instance.new("TextLabel", tabSettings)
+reportTitle.Size = UDim2.new(1, 0, 0, 20)
+reportTitle.Position = UDim2.new(0, 0, 0, 0)
+reportTitle.BackgroundTransparency = 1
+reportTitle.Text = "Report Problem / Feedback"
+reportTitle.TextColor3 = Color3.fromRGB(0, 180, 130)
+reportTitle.Font = Enum.Font.GothamBold
+reportTitle.TextSize = 11
+reportTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local problemBox = Instance.new("TextBox", tabSettings)
+problemBox.Size = UDim2.new(1, 0, 0, 45)
+problemBox.Position = UDim2.new(0, 0, 0, 22)
+problemBox.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+problemBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+problemBox.PlaceholderText = "Write your problem here..."
+problemBox.Text = ""
+problemBox.Font = Enum.Font.Gotham
+problemBox.TextSize = 11
+problemBox.ClearTextOnFocus = false
+problemBox.TextWrapped = true
+Instance.new("UICorner", problemBox).CornerRadius = UDim.new(0, 6)
+
+local sendBtn = Instance.new("TextButton", tabSettings)
+sendBtn.Size = UDim2.new(1, 0, 0, 28)
+sendBtn.Position = UDim2.new(0, 0, 0, 71)
+sendBtn.BackgroundColor3 = Color3.fromRGB(0, 180, 130)
+sendBtn.Text = "Send Report"
+sendBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+sendBtn.Font = Enum.Font.GothamBold
+sendBtn.TextSize = 11
+Instance.new("UICorner", sendBtn).CornerRadius = UDim.new(0, 6)
+
+-- كود الإرسال التلقائي المباشر إلى Google Forms (يظهر في Responses مباشرة)
+sendBtn.Activated:Connect(function()
+    local messageText = problemBox.Text
+    if messageText == "" then
+        StarterGui:SetCore("SendNotification", {
+            Title = "Waji Hub",
+            Text = "Please write your problem first!",
+            Duration = 3
+        })
+        return
+    end
+    
+    pcall(function()
+        local url = "https://docs.google.com/forms/d/e/1FAIpQLScqfcN-1D-LhU4sTX3DMoYzHBikCLxqlzlK34-Ky-NXPXLDGw/formResponse"
+        local data = "entry.1029437444=" .. HttpService:UrlEncode(messageText)
+        
+        request({
+            Url = url,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/x-www-form-urlencoded"
+            },
+            Body = data
+        })
+    end)
+    
+    problemBox.Text = ""
+    StarterGui:SetCore("SendNotification", {
+        Title = "Waji Hub",
+        Text = "Problem sent successfully to Google Forms!",
+        Duration = 3
+    })
+end)
+
+-- إشعارات تيك توك ويوتيوب بجانب اسم وجي (مع النسخ التلقائي عند الضغط)
+local tiktokNotifBtn = Instance.new("TextButton", tabSettings)
+tiktokNotifBtn.Size = UDim2.new(0.48, 0, 0, 28)
+tiktokNotifBtn.Position = UDim2.new(0, 0, 0, 104)
+tiktokNotifBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+tiktokNotifBtn.Text = "Waji TikTok (Copy)"
+tiktokNotifBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+tiktokNotifBtn.Font = Enum.Font.GothamBold
+tiktokNotifBtn.TextSize = 10
+Instance.new("UICorner", tiktokNotifBtn).CornerRadius = UDim.new(0, 6)
+
+tiktokNotifBtn.Activated:Connect(function()
+    pcall(function()
+        setclipboard("tiktok.com/@yoo_ges7")
+    end)
+    StarterGui:SetCore("SendNotification", {
+        Title = "Waji TikTok",
+        Text = "TikTok link copied successfully!",
+        Duration = 3
+    })
+end)
+
+local ytNotifBtn = Instance.new("TextButton", tabSettings)
+ytNotifBtn.Size = UDim2.new(0.48, 0, 0, 28)
+ytNotifBtn.Position = UDim2.new(0.52, 0, 0, 104)
+ytNotifBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+ytNotifBtn.Text = "Waji YouTube (Copy)"
+ytNotifBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ytNotifBtn.Font = Enum.Font.GothamBold
+ytNotifBtn.TextSize = 10
+Instance.new("UICorner", ytNotifBtn).CornerRadius = UDim.new(0, 6)
+
+ytNotifBtn.Activated:Connect(function()
+    pcall(function()
+        setclipboard("https://www.youtube.com/@JEXO.10-O")
+    end)
+    StarterGui:SetCore("SendNotification", {
+        Title = "Waji YouTube",
+        Text = "YouTube link copied successfully!",
+        Duration = 3
+    })
+end)
 
 ---------------------------------------------------------
 -- برمجة الأزرار
@@ -296,7 +465,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- 2. زر Light Effect (مع 4 ألوان جديدة مضافة)
+-- 2. زر Light Effect
 local script1Active = false
 local lightEffectConnections = {}
 
@@ -306,27 +475,24 @@ lightEffBtn.Activated:Connect(function()
         lightEffBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
         lightEffBtn.Text = "Light Effect\n[ON]"
         
-        -- تدرج لوني مطور يشمل الألوان القديمة + 4 ألوان جديدة (Cyan, Deep Orange, Lime, Hot Magenta)
         local customGradient = ColorSequence.new({
             ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 255, 255)),
-            ColorSequenceKeypoint.new(0.12, Color3.fromRGB(255, 0, 80)),
-            ColorSequenceKeypoint.new(0.25, Color3.fromRGB(0, 243, 255)), -- لون جديد 1
-            ColorSequenceKeypoint.new(0.38, Color3.fromRGB(255, 230, 0)),
-            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(255, 110, 0)),  -- لون جديد 2
-            ColorSequenceKeypoint.new(0.62, Color3.fromRGB(200, 0, 255)),
-            ColorSequenceKeypoint.new(0.75, Color3.fromRGB(0, 255, 120)), -- لون جديد 3
-            ColorSequenceKeypoint.new(0.88, Color3.fromRGB(0, 255, 60)),
-            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 170))  -- لون جديد 4
+            ColorSequenceKeypoint.new(0.10, Color3.fromRGB(255, 0, 80)),
+            ColorSequenceKeypoint.new(0.20, Color3.fromRGB(0, 243, 255)),
+            ColorSequenceKeypoint.new(0.30, Color3.fromRGB(255, 230, 0)),
+            ColorSequenceKeypoint.new(0.40, Color3.fromRGB(255, 110, 0)),
+            ColorSequenceKeypoint.new(0.50, Color3.fromRGB(200, 0, 255)),
+            ColorSequenceKeypoint.new(0.60, Color3.fromRGB(0, 255, 120)),
+            ColorSequenceKeypoint.new(0.70, Color3.fromRGB(0, 255, 60)),
+            ColorSequenceKeypoint.new(0.80, Color3.fromRGB(255, 0, 170)),
+            ColorSequenceKeypoint.new(0.90, Color3.fromRGB(0, 150, 255)),
+            ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 215, 0))
         })
 
         local function applyGradient(effect)
-            if effect:IsA("ParticleEmitter") then
+            if effect:IsA("ParticleEmitter") or effect:IsA("Trail") or effect:IsA("Beam") then
                 effect.Color = customGradient
                 effect.LightEmission = 1.0
-            elseif effect:IsA("Trail") then
-                effect.Color = customGradient
-            elseif effect:IsA("Beam") then
-                effect.Color = customGradient
             elseif effect:IsA("Highlight") then
                 effect.FillColor = Color3.fromRGB(255, 255, 255)
                 effect.OutlineColor = Color3.fromRGB(200, 0, 255)
@@ -363,7 +529,7 @@ lightEffBtn.Activated:Connect(function()
     end
 end)
 
--- 3. زر All Players Colors (مع 4 ألوان جديدة مضافة للقائمة)
+-- 3. زر All Players Colors
 local script2Active = false
 local colorCycleConnections = {}
 local activeEffects = {}
@@ -374,7 +540,6 @@ allColBtn.Activated:Connect(function()
         allColBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
         allColBtn.Text = "All Players\nColors [ON]"
         
-        -- تم دمج 4 ألوان إضافية جديدة (إجمالي 12 لوناً)
         local colors = {
             Color3.fromRGB(125, 249, 255),
             Color3.fromRGB(0, 128, 255),
@@ -384,10 +549,12 @@ allColBtn.Activated:Connect(function()
             Color3.fromRGB(255, 0, 0),
             Color3.fromRGB(255, 105, 180),
             Color3.fromRGB(255, 16, 240),
-            Color3.fromRGB(0, 255, 255), -- لون جديد 1 (Cyan)
-            Color3.fromRGB(255, 140, 0),  -- لون جديد 2 (Dark Orange)
-            Color3.fromRGB(127, 255, 0),  -- لون جديد 3 (Chartreuse)
-            Color3.fromRGB(255, 20, 147)  -- لون جديد 4 (Deep Pink)
+            Color3.fromRGB(0, 255, 255),
+            Color3.fromRGB(255, 140, 0),
+            Color3.fromRGB(127, 255, 0),
+            Color3.fromRGB(255, 20, 147),
+            Color3.fromRGB(138, 43, 225),
+            Color3.fromRGB(0, 206, 209)
         }
 
         local fadeTransparency = NumberSequence.new({
@@ -489,16 +656,16 @@ sideDashBtn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/54d6b993fe3a4c1f5c3e375eba35e5ec.lua"))() end)
 end)
 
-disciplineBtn.Activated:Connect(function()
-    pcall(function() loadstring(game:HttpGet("https://pastefy.app/wa3v2Vgm/raw"))("Spider Script") end)
+emotesBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Cyborg883/EmoteGui/refs/heads/main/Protected_4900496055951847.lua"))() end)
+end)
+
+silentAimBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet("https://rawscripts.net/raw/The-Strongest-Battlegrounds-Tsb-Op-Silent-And-LockOn-44541"))() end)
 end)
 
 loopDashBtn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/longv7217-commits/rayfield/refs/heads/main/Loopdash%20v2"))() end)
-end)
-
-emotesBtn.Activated:Connect(function()
-    pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Cyborg883/EmoteGui/refs/heads/main/Protected_4900496055951847.lua"))() end)
 end)
 
 aimbot1Btn.Activated:Connect(function()
@@ -550,4 +717,5 @@ openBtn.Activated:Connect(function()
     openBtn.Visible = false
 end)
 
-print("Waji Hub Fully Loaded Successfully with New Scripts, Custom Emotes, and Extra Colors!")
+print("Waji Hub Fully Loaded Successfully with Direct Google Form Reporting!")
+
