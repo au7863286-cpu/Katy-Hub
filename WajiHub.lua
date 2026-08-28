@@ -1,4 +1,4 @@
--- Waji Hub - Ultimate Edition (Integrated with TSB Color & Light Effects)
+-- WOOjIE - Ultimate Edition (Integrated with TSB Color & Light Effects)
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
@@ -34,7 +34,7 @@ Instance.new("UICorner", welcomeFrame).CornerRadius = UDim.new(0, 12)
 local welcomeTitle = Instance.new("TextLabel", welcomeFrame)
 welcomeTitle.Size = UDim2.new(1, 0, 0, 35)
 welcomeTitle.BackgroundTransparency = 1
-welcomeTitle.Text = "Waji Hub - Notice"
+welcomeTitle.Text = "WOOjIE - Notice"
 welcomeTitle.TextColor3 = Color3.fromRGB(0, 180, 130)
 welcomeTitle.Font = Enum.Font.GothamBold
 welcomeTitle.TextSize = 15
@@ -107,22 +107,22 @@ noteLabel.Font = Enum.Font.GothamBold
 noteLabel.TextWrapped = true
 noteLabel.ZIndex = 5
 
--- زر فتح الواجهة (Waji) - قابل للتحريك
+-- زر فتح الواجهة (WOOjIE) - قابل للتحريك
 local openBtn = Instance.new("TextButton")
 openBtn.Name = "OpenButton"
 openBtn.Parent = screenGui
-openBtn.Size = UDim2.new(0, 60, 0, 32)
+openBtn.Size = UDim2.new(0, 65, 0, 32)
 openBtn.Position = UDim2.new(0.05, 0, 0.2, 0)
 openBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-openBtn.Text = "Waji"
+openBtn.Text = "WOOjIE"
 openBtn.TextColor3 = Color3.fromRGB(0, 180, 130)
 openBtn.Font = Enum.Font.GothamBold
-openBtn.TextSize = 14
+openBtn.TextSize = 12
 openBtn.Visible = false
 openBtn.ZIndex = 10
 Instance.new("UICorner", openBtn).CornerRadius = UDim.new(0, 8)
 
--- نظام سحب زر Waji
+-- نظام سحب زر WOOjIE
 local openDragging, openDragInput, openDragStart, openStartPos
 openBtn.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -171,7 +171,7 @@ local title = Instance.new("TextLabel", titleBar)
 title.Size = UDim2.new(1, -45, 1, 0)
 title.Position = UDim2.new(0, 12, 0, 0)
 title.BackgroundTransparency = 1
-title.Text = "Waji Hub"
+title.Text = "WOOjIE"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.Font = Enum.Font.GothamBold
 title.TextSize = 16
@@ -249,9 +249,9 @@ local tabMain = createTabContent()
 local tabVisuals = createTabContent()
 local tabCombat = createTabContent()
 local tabExtra = createTabContent()
-local tabSettings = createTabContent() -- قسم الاعدادات الجديد
+local tabSettings = createTabContent()
 
-tabMain.Visible = true -- القسم الافتراضي
+tabMain.Visible = true
 
 local function createTabButton(name, targetPage, order)
     local btn = Instance.new("TextButton", tabsBar)
@@ -319,16 +319,18 @@ local lightEffBtn    = createSquareButton(tabVisuals, "Light Effect\n[OFF]", Col
 local allColBtn      = createSquareButton(tabVisuals, "All Players\nColors [OFF]", Color3.fromRGB(45, 45, 45), 2)
 local shadersBtn     = createSquareButton(tabVisuals, "Best\nShaders", Color3.fromRGB(45, 45, 45), 3)
 
-local aimbot1Btn     = createSquareButton(tabCombat, "Aimbot", Color3.fromRGB(45, 45, 45), 1)
-local aimbot2Btn     = createSquareButton(tabCombat, "Best\naimbot", Color3.fromRGB(45, 45, 45), 2)
-local silentAimBtn   = createSquareButton(tabCombat, "Aimbot &\nSilent Aim", Color3.fromRGB(45, 45, 45), 3)
-local loopDashBtn    = createSquareButton(tabCombat, "Loop Dash", Color3.fromRGB(45, 45, 45), 4)
+local aimbot1Btn        = createSquareButton(tabCombat, "Aimbot", Color3.fromRGB(45, 45, 45), 1)
+local aimbot2Btn        = createSquareButton(tabCombat, "Best\naimbot", Color3.fromRGB(45, 45, 45), 2)
+local silentAimBtn      = createSquareButton(tabCombat, "Aimbot &\nSilent Aim", Color3.fromRGB(45, 45, 45), 3)
+local loopDashBtn       = createSquareButton(tabCombat, "Loop Dash", Color3.fromRGB(45, 45, 45), 4)
+local instantLethalBtn  = createSquareButton(tabCombat, "Instant\nLethal Dash", Color3.fromRGB(45, 45, 45), 5)
+local infiniteDashBtn   = createSquareButton(tabCombat, "Infinite\nDash", Color3.fromRGB(45, 45, 45), 6)
 
 local sideDashBtn    = createSquareButton(tabExtra, "Side Dash", Color3.fromRGB(45, 45, 45), 1)
 local emotesBtn      = createSquareButton(tabExtra, "Emotes", Color3.fromRGB(45, 45, 45), 2)
 local script2Btn     = createSquareButton(tabExtra, "Feature\nScript", Color3.fromRGB(45, 45, 45), 3)
 
--- تصميم قسم الاعدادات (Report Problem + صندوق المشكلة + زر الإرسال التلقائي لجوجل فورم + إشعارات تيك توك ويوتيوب بجانب وجي)
+-- تصميم قسم الاعدادات
 local reportTitle = Instance.new("TextLabel", tabSettings)
 reportTitle.Size = UDim2.new(1, 0, 0, 20)
 reportTitle.Position = UDim2.new(0, 0, 0, 0)
@@ -362,12 +364,11 @@ sendBtn.Font = Enum.Font.GothamBold
 sendBtn.TextSize = 11
 Instance.new("UICorner", sendBtn).CornerRadius = UDim.new(0, 6)
 
--- كود الإرسال التلقائي المباشر إلى Google Forms (يظهر في Responses مباشرة)
 sendBtn.Activated:Connect(function()
     local messageText = problemBox.Text
     if messageText == "" then
         StarterGui:SetCore("SendNotification", {
-            Title = "Waji Hub",
+            Title = "WOOjIE",
             Text = "Please write your problem first!",
             Duration = 3
         })
@@ -390,18 +391,17 @@ sendBtn.Activated:Connect(function()
     
     problemBox.Text = ""
     StarterGui:SetCore("SendNotification", {
-        Title = "Waji Hub",
+        Title = "WOOjIE",
         Text = "Problem sent successfully to Google Forms!",
         Duration = 3
     })
 end)
 
--- إشعارات تيك توك ويوتيوب بجانب اسم وجي (مع النسخ التلقائي عند الضغط)
 local tiktokNotifBtn = Instance.new("TextButton", tabSettings)
 tiktokNotifBtn.Size = UDim2.new(0.48, 0, 0, 28)
 tiktokNotifBtn.Position = UDim2.new(0, 0, 0, 104)
 tiktokNotifBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-tiktokNotifBtn.Text = "Waji TikTok (Copy)"
+tiktokNotifBtn.Text = "WOOjIE TikTok (Copy)"
 tiktokNotifBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 tiktokNotifBtn.Font = Enum.Font.GothamBold
 tiktokNotifBtn.TextSize = 10
@@ -412,7 +412,7 @@ tiktokNotifBtn.Activated:Connect(function()
         setclipboard("tiktok.com/@yoo_ges7")
     end)
     StarterGui:SetCore("SendNotification", {
-        Title = "Waji TikTok",
+        Title = "WOOjIE TikTok",
         Text = "TikTok link copied successfully!",
         Duration = 3
     })
@@ -422,7 +422,7 @@ local ytNotifBtn = Instance.new("TextButton", tabSettings)
 ytNotifBtn.Size = UDim2.new(0.48, 0, 0, 28)
 ytNotifBtn.Position = UDim2.new(0.52, 0, 0, 104)
 ytNotifBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-ytNotifBtn.Text = "Waji YouTube (Copy)"
+ytNotifBtn.Text = "WOOjIE YouTube (Copy)"
 ytNotifBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ytNotifBtn.Font = Enum.Font.GothamBold
 ytNotifBtn.TextSize = 10
@@ -433,7 +433,7 @@ ytNotifBtn.Activated:Connect(function()
         setclipboard("https://www.youtube.com/@JEXO.10-O")
     end)
     StarterGui:SetCore("SendNotification", {
-        Title = "Waji YouTube",
+        Title = "WOOjIE YouTube",
         Text = "YouTube link copied successfully!",
         Duration = 3
     })
@@ -668,6 +668,14 @@ loopDashBtn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/longv7217-commits/rayfield/refs/heads/main/Loopdash%20v2"))() end)
 end)
 
+instantLethalBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet('https://levi-hub-x.vercel.app/Loader.lua'))() end)
+end)
+
+infiniteDashBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/truly1ndonly/made-this-script-enjoy-teehee/refs/heads/main/TSB%20Infinite%20Dash"))() end)
+end)
+
 aimbot1Btn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://pastebin.com/raw/E7HYaqgD", true))() end)
 end)
@@ -717,5 +725,5 @@ openBtn.Activated:Connect(function()
     openBtn.Visible = false
 end)
 
-print("Waji Hub Fully Loaded Successfully with Direct Google Form Reporting!")
+print("WOOjIE Fully Loaded Successfully with Direct Google Form Reporting!")
 
