@@ -323,12 +323,14 @@ local aimbot1Btn        = createSquareButton(tabCombat, "Aimbot", Color3.fromRGB
 local aimbot2Btn        = createSquareButton(tabCombat, "Best\naimbot", Color3.fromRGB(45, 45, 45), 2)
 local silentAimBtn      = createSquareButton(tabCombat, "Aimbot &\nSilent Aim", Color3.fromRGB(45, 45, 45), 3)
 local loopDashBtn       = createSquareButton(tabCombat, "Loop Dash", Color3.fromRGB(45, 45, 45), 4)
-local instantLethalBtn  = createSquareButton(tabCombat, "Instant\nLethal Dash", Color3.fromRGB(45, 45, 45), 5)
+local lethalDashBtn     = createSquareButton(tabCombat, "Lethal\nDash", Color3.fromRGB(45, 45, 45), 5)
 local infiniteDashBtn   = createSquareButton(tabCombat, "Infinite\nDash", Color3.fromRGB(45, 45, 45), 6)
+local instantTwistedBtn = createSquareButton(tabCombat, "Instant\nTwisted", Color3.fromRGB(45, 45, 45), 7)
 
-local sideDashBtn    = createSquareButton(tabExtra, "Side Dash", Color3.fromRGB(45, 45, 45), 1)
-local emotesBtn      = createSquareButton(tabExtra, "Emotes", Color3.fromRGB(45, 45, 45), 2)
-local script2Btn     = createSquareButton(tabExtra, "Feature\nScript", Color3.fromRGB(45, 45, 45), 3)
+local sideDashBtn           = createSquareButton(tabExtra, "Side Dash", Color3.fromRGB(45, 45, 45), 1)
+local emotesBtn             = createSquareButton(tabExtra, "Emotes", Color3.fromRGB(45, 45, 45), 2)
+local unlockExpressionsBtn  = createSquareButton(tabExtra, "Unlock free expressions", Color3.fromRGB(45, 45, 45), 3)
+local script2Btn            = createSquareButton(tabExtra, "Feature\nScript", Color3.fromRGB(45, 45, 45), 4)
 
 -- تصميم قسم الاعدادات
 local reportTitle = Instance.new("TextLabel", tabSettings)
@@ -430,7 +432,7 @@ Instance.new("UICorner", ytNotifBtn).CornerRadius = UDim.new(0, 6)
 
 ytNotifBtn.Activated:Connect(function()
     pcall(function()
-        setclipboard("https://www.youtube.com/@JEXO.10-O")
+        setclipboard("https://www.youtube.com/@WOOjIE.10-O")
     end)
     StarterGui:SetCore("SendNotification", {
         Title = "WOOjIE YouTube",
@@ -651,13 +653,17 @@ allColBtn.Activated:Connect(function()
     end
 end)
 
--- تشغيل السكريبتات
+-- تشغيل السكريبتات المضافة والمحدثة
 sideDashBtn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/54d6b993fe3a4c1f5c3e375eba35e5ec.lua"))() end)
 end)
 
 emotesBtn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Cyborg883/EmoteGui/refs/heads/main/Protected_4900496055951847.lua"))() end)
+end)
+
+unlockExpressionsBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/M11NEGERO/Emote-Extra-X2-Script-/refs/heads/main/Emote%20Extra%20X2%20Script"))() end)
 end)
 
 silentAimBtn.Activated:Connect(function()
@@ -668,12 +674,16 @@ loopDashBtn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/longv7217-commits/rayfield/refs/heads/main/Loopdash%20v2"))() end)
 end)
 
-instantLethalBtn.Activated:Connect(function()
-    pcall(function() loadstring(game:HttpGet('https://levi-hub-x.vercel.app/Loader.lua'))() end)
+lethalDashBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/Cyborg883/InstantLethalRevamp/refs/heads/main/Protected_6977817281150270.lua"))() end)
 end)
 
 infiniteDashBtn.Activated:Connect(function()
     pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/truly1ndonly/made-this-script-enjoy-teehee/refs/heads/main/TSB%20Infinite%20Dash"))() end)
+end)
+
+instantTwistedBtn.Activated:Connect(function()
+    pcall(function() loadstring(game:HttpGet("https://haxhell.com/raw/the-strongest-battlegrounds-instant-twisted-rework"))() end)
 end)
 
 aimbot1Btn.Activated:Connect(function()
