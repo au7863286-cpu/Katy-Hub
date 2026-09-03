@@ -6,7 +6,6 @@ local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse()
 
 local CamlockEnabled = false
-local CamlockPrediction = 0.16
 local CamlockToggle = true
 local CamlockTarget = nil
 local CamlockKey = "c"
@@ -51,11 +50,11 @@ local function FindNearestEnemy()
     return nearestTarget
 end
 
--- تشغيل الـ Camlock
+-- تشغيل الـ Camlock (بدون تنبؤ)
 RunService.Heartbeat:Connect(function()
     if CamlockEnabled and CamlockTarget then
         local camera = workspace.CurrentCamera
-        camera.CFrame = CFrame.new(camera.CFrame.Position, CamlockTarget.Position + CamlockTarget.Velocity * CamlockPrediction)
+        camera.CFrame = CFrame.new(camera.CFrame.Position, CamlockTarget.Position)
     end
 end)
 
@@ -81,12 +80,12 @@ local CamlockCorner = Instance.new("UICorner")
 local CamlockButton = Instance.new("TextButton")
 local ButtonCorner = Instance.new("UICorner")
 
--- تعديل إطار الحاوية ليناسب الشكل الصغير
+-- تكبير حجم الإطار قليلاً
 CamlockFrame.Parent = CamlockGui
 CamlockFrame.BackgroundColor3 = Color3.fromRGB(20, 30, 25)
-CamlockFrame.BackgroundTransparency = 0.3 -- تأثير زجاجي خفيف للإطار
+CamlockFrame.BackgroundTransparency = 0.3
 CamlockFrame.BorderSizePixel = 0
-CamlockFrame.Size = UDim2.new(0, 110, 0, 40)
+CamlockFrame.Size = UDim2.new(0, 130, 0, 50)
 CamlockFrame.Active = true
 CamlockFrame.Draggable = true
 
@@ -99,15 +98,15 @@ CamlockFrame:GetPropertyChangedSignal("AbsoluteSize"):Connect(CenterCamlockFrame
 CamlockCorner.CornerRadius = UDim.new(0, 8)
 CamlockCorner.Parent = CamlockFrame
 
--- زر زجاجي أخضر ومستطيل صغير
+-- تكبير حجم الزر قليلاً ليناسب الزيادة
 CamlockButton.Parent = CamlockFrame
-CamlockButton.BackgroundColor3 = Color3.fromRGB(46, 204, 113) -- أخضر زاهي
-CamlockButton.BackgroundTransparency = 0.25 -- تأثير الزجاج (Glassmorphism)
+CamlockButton.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+CamlockButton.BackgroundTransparency = 0.25
 CamlockButton.BorderSizePixel = 0
 CamlockButton.Position = UDim2.new(0.05, 0, 0.15, 0)
-CamlockButton.Size = UDim2.new(0, 99, 0, 28)
+CamlockButton.Size = UDim2.new(0, 117, 0, 35)
 CamlockButton.Font = Enum.Font.GothamBold
-CamlockButton.Text = "Camlock"
+CamlockButton.Text = "FPS: 0"
 CamlockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 CamlockButton.TextScaled = true
 CamlockButton.TextWrapped = true
@@ -115,17 +114,29 @@ CamlockButton.TextWrapped = true
 ButtonCorner.CornerRadius = UDim.new(0, 6)
 ButtonCorner.Parent = CamlockButton
 
+-- تحديث الـ FPS باستمرار داخل الزر
+local lastTick = tick()
+local frameCount = 0
+RunService.RenderStepped:Connect(function()
+    frameCount = frameCount + 1
+    local currentTick = tick()
+    if currentTick - lastTick >= 1 then
+        local fps = math.floor(frameCount / (currentTick - lastTick) + 0.5)
+        CamlockButton.Text = "FPS: " .. tostring(fps)
+        frameCount = 0
+        lastTick = currentTick
+    end
+end)
+
 local CamlockState = true
 CamlockButton.MouseButton1Click:Connect(function()
     CamlockState = not CamlockState
     if CamlockState then
-        CamlockButton.Text = "Off"
-        CamlockButton.BackgroundColor3 = Color3.fromRGB(231, 76, 60) -- أحمر خفيف عند الإيقاف
+        CamlockButton.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
         CamlockEnabled = false
         CamlockTarget = nil
     else
-        CamlockButton.Text = "On"
-        CamlockButton.BackgroundColor3 = Color3.fromRGB(46, 204, 113) -- أخضر زجاجي عند التفعيل
+        CamlockButton.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
         CamlockEnabled = true
         CamlockTarget = FindNearestEnemy()
     end
@@ -133,7 +144,7 @@ end)
 
 StarterGui:SetCore("SendNotification", {
     Title = "Camlock Loaded",
-    Text = "Glass green style applied!",
+    Text = "FPS counter applied & prediction removed!",
     Duration = 3
 })
 
