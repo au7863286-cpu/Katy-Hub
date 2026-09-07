@@ -39,8 +39,8 @@ end
 
 -- ==================== 1. Top Frame (واجهة السكيلز الأساسية في الأعلى) ====================
 local topFrame = Instance.new("Frame")
-topFrame.Size = UDim2.new(0, 390, 0, 55)
-topFrame.Position = UDim2.new(0.5, -195, 0, 20)
+topFrame.Size = UDim2.new(0, 485, 0, 95) -- تم تعديل العرض والارتفاع قليلاً لاستيعاب الزر الجديد بشكل منظم
+topFrame.Position = UDim2.new(0.5, -242, 0, 20)
 topFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
 topFrame.ZIndex = 20
 topFrame.Parent = gui
@@ -49,7 +49,7 @@ addStroke(topFrame, 2, Color3.fromRGB(0, 180, 255))
 
 local title = Instance.new("TextLabel")
 title.Size = UDim2.new(1, 0, 0, 20)
-title.Position = UDim2.new(0, 0, -0.7, 0)
+title.Position = UDim2.new(0, 0, -0.4, 0)
 title.BackgroundTransparency = 1
 title.Text = "✨ Select Skill BackDash ✨"
 title.TextColor3 = Color3.fromRGB(0, 210, 255)
@@ -114,7 +114,7 @@ end)
 -- Nút X (إغلاق)
 local xButton = Instance.new("TextButton")
 xButton.Size = UDim2.new(0, 35, 0, 35)
-xButton.Position = UDim2.new(0, 343, 0, 10)
+xButton.Position = UDim2.new(0, 438, 0, 10)
 xButton.Text = "✕"
 xButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
 xButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -124,11 +124,35 @@ xButton.ZIndex = 21
 xButton.Parent = topFrame
 roundify(xButton, 10)
 
+-- ==================== زر Dash, no final الجديد ====================
+local dashNoFinalBtn = Instance.new("TextButton")
+dashNoFinalBtn.Size = UDim2.new(0, 461, 0, 32)
+dashNoFinalBtn.Position = UDim2.new(0, 12, 0, 53)
+dashNoFinalBtn.Text = "⚡ Dash, no final"
+dashNoFinalBtn.BackgroundColor3 = Color3.fromRGB(40, 30, 60)
+dashNoFinalBtn.TextColor3 = Color3.fromRGB(220, 180, 255)
+dashNoFinalBtn.Font = Enum.Font.GothamBold
+dashNoFinalBtn.TextSize = 13
+dashNoFinalBtn.ZIndex = 21
+dashNoFinalBtn.BorderSizePixel = 0
+dashNoFinalBtn.Parent = topFrame
+roundify(dashNoFinalBtn, 10)
+addStroke(dashNoFinalBtn, 1, Color3.fromRGB(150, 50, 255))
+
+dashNoFinalBtn.MouseButton1Click:Connect(function()
+	pcall(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/truly1ndonly/made-this-script-enjoy-teehee/refs/heads/main/TSB%20Infinite%20Dash"))()
+	end)
+	dashNoFinalBtn.Text = " ✓ Executed Dash, no final!"
+	task.wait(1)
+	dashNoFinalBtn.Text = "⚡ Dash, no final"
+end)
+
 
 -- ==================== 2. Social Media Bar (في الأسفل تحت واجهة السكيلز) ====================
 local socialFrame = Instance.new("Frame")
-socialFrame.Size = UDim2.new(0, 390, 0, 45)
-socialFrame.Position = UDim2.new(0.5, -195, 0, 85)
+socialFrame.Size = UDim2.new(0, 485, 0, 45)
+socialFrame.Position = UDim2.new(0.5, -242, 0, 125)
 socialFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 24)
 socialFrame.ZIndex = 20
 socialFrame.Parent = gui
@@ -137,7 +161,7 @@ addStroke(socialFrame, 2, Color3.fromRGB(255, 0, 128))
 
 -- زر تيك توك
 local tiktokBtn = Instance.new("TextButton")
-tiktokBtn.Size = UDim2.new(0, 182, 0, 31)
+tiktokBtn.Size = UDim2.new(0, 230, 0, 31)
 tiktokBtn.Position = UDim2.new(0, 7, 0, 7)
 tiktokBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
 tiktokBtn.Text = " 🎵 TikTok: @yoo_ges7"
@@ -160,8 +184,8 @@ end)
 
 -- زر يوتيوب
 local youtubeBtn = Instance.new("TextButton")
-youtubeBtn.Size = UDim2.new(0, 182, 0, 31)
-youtubeBtn.Position = UDim2.new(0, 201, 0, 7)
+youtubeBtn.Size = UDim2.new(0, 230, 0, 31)
+youtubeBtn.Position = UDim2.new(0, 248, 0, 7)
 youtubeBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 38)
 youtubeBtn.Text = " 📺 YouTube: WOOjIE"
 youtubeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -331,10 +355,9 @@ icon.MouseButton1Click:Connect(function()
 
 	topFrame.Visible = guiVisible
 	socialFrame.Visible = guiVisible
-	-- تم إزالة إخفاء actionFrame ليبقى زر الداش ظاهراً دائماً حسب طلبك!
 end)
 
--- Back Dash Image Button (تم تعديل لون الخلفية والإطار ليتناسب مع طلبك)
+-- Back Dash Image Button
 local mainButton = Instance.new("ImageButton")
 mainButton.Size = UDim2.new(1, 0, 1, 0)
 mainButton.Position = UDim2.new(0, 0, 0, 0)
@@ -343,7 +366,7 @@ mainButton.Image = "rbxassetid://139705395031155"
 mainButton.ZIndex = 6
 mainButton.Parent = actionFrame
 roundify(mainButton, 32)
-addStroke(mainButton, 2, Color3.fromRGB(255, 0, 150)) -- لون مميز وجذاب للداش
+addStroke(mainButton, 2, Color3.fromRGB(255, 0, 150))
 
 -- Remote Fire
 local function triggerRemote(tool)
